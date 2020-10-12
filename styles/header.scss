@@ -1,0 +1,139 @@
+/**Variable**/
+
+.vxe-table {
+  .vxe-table--header-wrapper {
+    .vxe-table--header-border-line {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 0;
+      border-bottom: 1px solid $vxe-table-border-color;
+    }
+  }
+  /*排序*/
+  .vxe-cell--sort {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    .vxe-sort--asc-btn,
+    .vxe-sort--desc-btn {
+      height: 8px;
+      left: 0.1em;
+      color: $vxe-table-column-icon-border-color;
+      width: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: color 150ms linear;
+      &:hover {
+        fill: $primary-color;
+      }
+      &.sort--active {
+        fill: $primary-color;
+      }
+      svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    }
+    .vxe-sort--asc-btn::before {
+      display: none;
+      bottom: 0.1em;
+    }
+    .vxe-sort--desc-btn::before {
+      display: none;
+      top: 0.1em;
+    }
+  }
+}
+
+
+.vxe-header--column {
+  position: relative;
+  user-select: none;
+  &:first-child:not(.col--checkbox) {
+    .vxe-cell {
+      padding-left: 24px;
+    }
+  }
+  &.col--ellipsis {
+    height: 40px;
+    & > .vxe-cell {
+      display: flex;
+      align-items: center;
+      padding: 0 8px 0 16px;
+      .vxe-cell--title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      & > i,
+      & > span {
+        &:not(.vxe-cell--title) {
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+  .vxe-required-icon {
+    display: inline-block;
+    color: $vxe-table-validate-error-color;
+    vertical-align: middle;
+    width: 0.85em;
+    height: 1em;
+    line-height: 1em;
+    font-family: $vxe-icon-font-family;
+    font-weight: normal;
+    position: relative;
+    &:before {
+      content: "*";
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+    }
+  }
+  .vxe-edit-icon {
+    margin-right: 0.2em;
+  }
+  .vxe-resizable {
+    position: absolute;
+    right: -7px;
+    bottom: 0;
+    width: 14px;
+    height: 100%;
+    text-align: center;
+    z-index: 1;
+    cursor: col-resize;
+    &.is--line {
+      &:before,
+      &:after {
+        content: "";
+        display: inline-block;
+        vertical-align: middle;
+      }
+      &:before {
+        width: 1px;
+        height: 16px;
+        background-color: rgba(0, 0, 0, 0.15);
+      }
+      &:after {
+        width: 0;
+        height: 100%;
+      }
+    }
+  }
+}
+
+.vxe-table--fixed-right-wrapper {
+  .vxe-header--column {
+    .vxe-resizable {
+      right: auto;
+      left: -7px;
+    }
+  }
+}
