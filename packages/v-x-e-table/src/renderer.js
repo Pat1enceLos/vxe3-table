@@ -1,3 +1,4 @@
+import { resolveComponent } from 'vue'
 import XEUtils from 'xe-utils/methods/xe-utils'
 import GlobalConfig from '../../conf'
 import { UtilTools } from '../../tools'
@@ -183,11 +184,9 @@ function nativeEditRender (h, renderOpts, params) {
   return [
     h(name, {
       class: `vxe-default-${name}`,
-      attrs,
-      domProps: {
-        value: cellValue
-      },
-      on: getNativeEditOns(renderOpts, params)
+      ...attrs,
+      value: cellValue,
+      ...getNativeEditOns(renderOpts, params)
     })
   ]
 }
@@ -197,19 +196,19 @@ function defaultEditRender (h, renderOpts, params) {
   const cellValue = UtilTools.getCellValue(row, column)
   return [
     h(getDefaultComponentName(renderOpts), {
-      props: getCellEditFilterProps(renderOpts, params, cellValue),
-      on: getEditOns(renderOpts, params),
-      nativeOn: getNativeOns(renderOpts, params)
+      ...getCellEditFilterProps(renderOpts, params, cellValue),
+      ...getEditOns(renderOpts, params),
+      ...getNativeOns(renderOpts, params)
     })
   ]
 }
 
 function defaultButtonEditRender (h, renderOpts, params) {
   return [
-    h('vxe-button', {
-      props: getCellEditFilterProps(renderOpts, params),
-      on: getOns(renderOpts, params),
-      nativeOn: getNativeOns(renderOpts, params)
+    h(resolveComponent('vxe-button'), {
+      ...getCellEditFilterProps(renderOpts, params),
+      ...getOns(renderOpts, params),
+      ...getNativeOns(renderOpts, params)
     })
   ]
 }
@@ -225,9 +224,7 @@ function renderNativeOptgroups (h, renderOpts, params, renderOptionsMethods) {
   return optionGroups.map((group, gIndex) => {
     return h('optgroup', {
       key: gIndex,
-      domProps: {
-        label: group[groupLabel]
-      }
+      label: group[groupLabel],
     }, renderOptionsMethods(h, group[groupOptions], renderOpts, params))
   })
 }
@@ -245,14 +242,10 @@ function renderNativeOptions (h, options, renderOpts, params) {
   return options.map((option, oIndex) => {
     return h('option', {
       key: oIndex,
-      attrs: {
-        value: option[valueProp],
-        disabled: option[disabledProp]
-      },
-      domProps: {
-        /* eslint-disable eqeqeq */
-        selected: option[valueProp] == cellValue
-      }
+      value: option[valueProp],
+      disabled: option[disabledProp],
+      /* eslint-disable eqeqeq */
+      selected: option[valueProp] == cellValue
     }, option[labelProp])
   })
 }
@@ -266,10 +259,8 @@ function nativeFilterRender (h, renderOpts, params) {
       key: oIndex,
       class: `vxe-default-${name}`,
       attrs,
-      domProps: {
-        value: option.data
-      },
-      on: getNativeFilterOns(renderOpts, params, option)
+      value: option.data,
+      ...getNativeFilterOns(renderOpts, params, option)
     })
   })
 }
@@ -280,8 +271,8 @@ function defaultFilterRender (h, renderOpts, params) {
     const optionValue = option.data
     return h(getDefaultComponentName(renderOpts), {
       key: oIndex,
-      props: getCellEditFilterProps(renderOpts, renderOpts, optionValue),
-      on: getFilterOns(renderOpts, params, option)
+      ...getCellEditFilterProps(renderOpts, renderOpts, optionValue),
+      ...getFilterOns(renderOpts, params, option)
     })
   })
 }
@@ -297,8 +288,8 @@ function nativeSelectEditRender (h, renderOpts, params) {
   return [
     h('select', {
       class: 'vxe-default-select',
-      attrs: getNativeAttrs(renderOpts),
-      on: getNativeEditOns(renderOpts, params)
+      ...getNativeAttrs(renderOpts),
+      ...getNativeEditOns(renderOpts, params)
     },
     renderOpts.optionGroups ? renderNativeOptgroups(h, renderOpts, params, renderNativeOptions) : renderNativeOptions(h, renderOpts.options, renderOpts, params))
   ]
@@ -310,8 +301,8 @@ function defaultSelectEditRender (h, renderOpts, params) {
   const cellValue = UtilTools.getCellValue(row, column)
   return [
     h(getDefaultComponentName(renderOpts), {
-      props: getCellEditFilterProps(renderOpts, params, cellValue, { options, optionProps, optionGroups, optionGroupProps }),
-      on: getEditOns(renderOpts, params)
+      ...getCellEditFilterProps(renderOpts, params, cellValue, { options, optionProps, optionGroups, optionGroupProps }),
+      ...getEditOns(renderOpts, params)
     })
   ]
 }
@@ -354,11 +345,9 @@ function nativeItemRender (h, renderOpts, params) {
   return [
     h(name, {
       class: `vxe-default-${name}`,
-      attrs,
-      domProps: attrs && name === 'input' && (attrs.type === 'submit' || attrs.type === 'reset') ? null : {
-        value: itemValue
-      },
-      on: getNativeItemOns(renderOpts, params)
+      ...attrs,
+      value: attrs && name === 'input' && (attrs.type === 'submit' || attrs.type === 'reset') ? null : itemValue,
+      ...getNativeItemOns(renderOpts, params)
     })
   ]
 }
@@ -368,19 +357,19 @@ function defaultItemRender (h, renderOpts, params) {
   const itemValue = XEUtils.get(data, property)
   return [
     h(getDefaultComponentName(renderOpts), {
-      props: getItemProps(renderOpts, params, itemValue),
-      on: getItemOns(renderOpts, params),
-      nativeOn: getNativeOns(renderOpts, params)
+      ...getItemProps(renderOpts, params, itemValue),
+      ...getItemOns(renderOpts, params),
+      ...getNativeOns(renderOpts, params)
     })
   ]
 }
 
 function defaultButtonItemRender (h, renderOpts, params) {
   return [
-    h('vxe-button', {
-      props: getItemProps(renderOpts, params),
-      on: getOns(renderOpts, params),
-      nativeOn: getNativeOns(renderOpts, params)
+    h(resolveComponent('vxe-button'), {
+      ...getItemProps(renderOpts, params),
+      ...getOns(renderOpts, params),
+      ...getNativeOns(renderOpts, params)
     })
   ]
 }
@@ -402,14 +391,10 @@ function renderNativeFormOptions (h, options, renderOpts, params) {
   return options.map((item, oIndex) => {
     return h('option', {
       key: oIndex,
-      attrs: {
-        value: item[valueProp],
-        disabled: item[disabledProp]
-      },
-      domProps: {
-        /* eslint-disable eqeqeq */
-        selected: item[valueProp] == cellValue
-      }
+      value: item[valueProp],
+      disabled: item[disabledProp],
+      /* eslint-disable eqeqeq */
+      selected: item[valueProp] == cellValue
     }, item[labelProp])
   })
 }
@@ -435,17 +420,15 @@ function defaultFormItemRadioAndCheckboxRender (h, renderOpts, params) {
   const name = getDefaultComponentName(renderOpts)
   return [
     h(`${name}-group`, {
-      props: getItemProps(renderOpts, params, itemValue),
-      on: getItemOns(renderOpts, params),
-      nativeOn: getNativeOns(renderOpts, params)
+      ...getItemProps(renderOpts, params, itemValue),
+      ...getItemOns(renderOpts, params),
+      ...getNativeOns(renderOpts, params)
     }, options.map((item, index) => {
       return h(name, {
         key: index,
-        props: {
-          label: item[valueProp],
-          content: item[labelProp],
-          disabled: item[disabledProp]
-        }
+        label: item[valueProp],
+        content: item[labelProp],
+        disabled: item[disabledProp]
       })
     }))
   ]
@@ -480,8 +463,8 @@ const renderMap = {
         return h('select', {
           key: oIndex,
           class: 'vxe-default-select',
-          attrs: getNativeAttrs(renderOpts),
-          on: getNativeFilterOns(renderOpts, params, option)
+          ...getNativeAttrs(renderOpts),
+          ...getNativeFilterOns(renderOpts, params, option)
         },
         renderOpts.optionGroups ? renderNativeOptgroups(h, renderOpts, params, renderNativeOptions) : renderNativeOptions(h, renderOpts.options, renderOpts, params))
       })
@@ -491,8 +474,8 @@ const renderMap = {
       return [
         h('select', {
           class: 'vxe-default-select',
-          attrs: getNativeAttrs(renderOpts),
-          on: getNativeItemOns(renderOpts, params)
+          ...getNativeAttrs(renderOpts),
+          ...getNativeItemOns(renderOpts, params)
         },
         renderOpts.optionGroups ? renderNativeOptgroups(h, renderOpts, params, renderNativeFormOptions) : renderNativeFormOptions(h, renderOpts.options, renderOpts, params))
       ]
@@ -554,9 +537,9 @@ const renderMap = {
         const optionValue = option.data
         return h(getDefaultComponentName(renderOpts), {
           key: oIndex,
-          props: getCellEditFilterProps(renderOpts, params, optionValue, { options, optionProps, optionGroups, optionGroupProps }),
-          on: getFilterOns(renderOpts, params, option),
-          nativeOn
+          ...getCellEditFilterProps(renderOpts, params, optionValue, { options, optionProps, optionGroups, optionGroupProps }),
+          ...getFilterOns(renderOpts, params, option),
+          ...nativeOn
         })
       })
     },
@@ -567,9 +550,9 @@ const renderMap = {
       const itemValue = XEUtils.get(data, property)
       return [
         h(getDefaultComponentName(renderOpts), {
-          props: getItemProps(renderOpts, params, itemValue, { options, optionProps, optionGroups, optionGroupProps }),
-          on: getItemOns(renderOpts, params),
-          nativeOn: getNativeOns(renderOpts, params)
+          ...getItemProps(renderOpts, params, itemValue, { options, optionProps, optionGroups, optionGroupProps }),
+          ...getItemOns(renderOpts, params),
+          ...getNativeOns(renderOpts, params)
         })
       ]
     },

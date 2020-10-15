@@ -262,7 +262,7 @@ export const UtilTools = {
   assemColumn (_vm) {
     const { $el, $xetable, $xecolumn, columnConfig } = _vm
     const groupConfig = $xecolumn ? $xecolumn.columnConfig : null
-    columnConfig.slots = _vm.$scopedSlots
+    columnConfig.slots = _vm.$slots
     if (groupConfig && $xecolumn.$children.length > 0) {
       if (!groupConfig.children) {
         groupConfig.children = []
@@ -270,6 +270,7 @@ export const UtilTools = {
       groupConfig.children.splice([].indexOf.call($xecolumn.$el.children, $el), 0, columnConfig)
     } else {
       $xetable.collectColumn.splice([].indexOf.call($xetable.$refs.hideColumn.children, $el), 0, columnConfig)
+      $xetable.collectColumn = XEUtils.clone($xetable.collectColumn, true)
     }
   },
   // 销毁列

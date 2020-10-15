@@ -7,22 +7,22 @@ import Header from './header'
 // import Filter from './filter'
 // import Grid from './grid'
 // import Menu from './menu'
-// import Toolbar from './toolbar'
+import Toolbar from './toolbar'
 import Pager from './pager'
 // import Checkbox from './checkbox'
 // import Radio from './radio'
-// import Input from './input'
+import Input from './input'
 // import Textarea from './textarea'
-// import Button from './button'
+import Button from './button'
 // import Modal from './modal'
 // import Tooltip from './tooltip'
 // import Form from './form'
-// import Select from './select'
+import Select from './select'
 // import Switch from './switch'
 // import List from './list'
 // import Pulldown from './pulldown'
 
-// import Edit from './edit'
+import Edit from './edit'
 // import Export from './export'
 // import Custom from './custom'
 // import Keyboard from './keyboard'
@@ -38,22 +38,22 @@ const components = [
   // Filter,
   // Grid,
   // Menu,
-  // Toolbar,
+  Toolbar,
   Pager,
   // Checkbox,
   // Radio,
-  // Input,
+  Input,
   // Textarea,
-  // Button,
+  Button,
   // Modal,
   // Tooltip,
   // Form,
-  // Select,
+  Select,
   // Switch,
   // List,
   // Pulldown,
 
-  // Edit,
+  Edit,
   // Export,
   // Custom,
   // Keyboard,
@@ -63,11 +63,8 @@ const components = [
 ]
 
 // 默认安装
-function install (Vue, options) {
-  if (XEUtils.isPlainObject(options)) {
-    VXETable.setup(options)
-  }
-  components.map(component => component.install(Vue))
+const install = function (app) {
+  components.map(component => app.use(component))
 }
 
 // 默认中文
@@ -89,26 +86,28 @@ export * from './body'
 // export * from './filter'
 // export * from './grid'
 // export * from './menu'
-// export * from './toolbar'
+export * from './toolbar'
 export * from './pager'
 // export * from './checkbox'
 // export * from './radio'
-// export * from './input'
+export * from './input'
 // export * from './textarea'
-// export * from './button'
+export * from './button'
 // export * from './modal'
 // export * from './tooltip'
 // export * from './form'
-// export * from './select'
+export * from './select'
 // export * from './switch'
 // export * from './list'
 // export * from './pulldown'
 
-// export * from './edit'
+export * from './edit'
 // export * from './export'
 // export * from './custom'
 // export * from './keyboard'
 // export * from './validator'
 export * from './table'
 
-export default VXETable
+export default {
+  install,
+};

@@ -1,4 +1,5 @@
 import XEUtils from 'xe-utils/methods/xe-utils'
+import { h, resolveComponent, defineComponent } from 'vue';
 import GlobalConfig from '../../conf'
 import VXETable from '../../v-x-e-table'
 import VxeTableBody from '../../body'
@@ -21,46 +22,40 @@ function renderFixed (h, $xetable, fixedType) {
     class: `vxe-table--fixed-${fixedType}-wrapper`,
     ref: `${fixedType}Container`
   }, [
-    showHeader ? h('vxe-table-header', {
-      props: {
-        fixedType,
-        tableData,
-        tableColumn,
-        visibleColumn,
-        tableGroupColumn,
-        size: vSize,
-        fixedColumn,
-        isGroup
-      },
+    showHeader ? h(resolveComponent('vxe-table-header'), {
+      fixedType,
+      tableData,
+      tableColumn,
+      visibleColumn,
+      tableGroupColumn,
+      size: vSize,
+      fixedColumn,
+      isGroup,
       ref: `${fixedType}Header`
     }) : null,
-    h('vxe-table-body', {
-      props: {
-        fixedType,
-        tableData,
-        tableColumn,
-        visibleColumn,
-        fixedColumn,
-        size: vSize,
-        isGroup
-      },
+    h(resolveComponent('vxe-table-body'), {
+      fixedType,
+      tableData,
+      tableColumn,
+      visibleColumn,
+      fixedColumn,
+      size: vSize,
+      isGroup,
       ref: `${fixedType}Body`
     }),
-    showFooter ? h('vxe-table-footer', {
-      props: {
-        footerData,
-        tableColumn,
-        visibleColumn,
-        fixedColumn,
-        fixedType,
-        size: vSize
-      },
+    showFooter ? h(resolveComponent('vxe-table-footer'), {
+      footerData,
+      tableColumn,
+      visibleColumn,
+      fixedColumn,
+      fixedType,
+      size: vSize,
       ref: `${fixedType}Footer`
     }) : null
   ])
 }
 
-export default {
+export default defineComponent({
   name: 'VxeTable',
   props: {
     /** 基本属性 */
@@ -204,10 +199,30 @@ export default {
     animat: { type: Boolean, default: () => GlobalConfig.table.animat },
     delayHover: { type: Number, default: () => GlobalConfig.table.delayHover },
     // 额外的参数
-    params: Object
+    params: Object,
+    
+    // Vue3 event props
+    onResizableChange: Function,
+    onCellClick: Function,
+    onCellDblclick: Function,
+    onHeaderCellClick: Function,
+    onHeaderCellDblclick: Function,
+    onEditActived: Function,
+    onEditClosed: Function,
+    onCellMouseenter: Function,
+    onCellMouseleave: Function,
+    onScroll: Function,
+    onKeydown: Function,
+    onCheckboxChange: Function,
+    onCheckboxAll: Function,
+    onRadioChange: Function,
+    onCurrentChange: Function,
+    onSortChange: Function,
+    onToggleRowExpand: Function,
+    onToggleTreeExpand: Function,
   },
   components: {
-    VxeTableBody
+    VxeTableBody,
   },
   provide () {
     return {
@@ -720,7 +735,7 @@ export default {
     }
     document.body.appendChild(this.$refs.tableWrapper)
     this.preventEvent(null, 'mounted')
-    if (this.$props.resizable !== false) {
+    if (this.resizable !== false) {
       this.calcTableWidth()
     }
     this.hideDropdownOperation = throttle(this.hideDropdownOperation, 100)
@@ -733,7 +748,8 @@ export default {
   deactivated () {
     this.preventEvent(null, 'deactivated')
   },
-  beforeDestroy () {
+  beforeUnmount () {
+    this.handleBeforeDestroy();
     const tableWrapper = this.$refs.tableWrapper
     if (tableWrapper && tableWrapper.parentNode) {
       tableWrapper.parentNode.removeChild(tableWrapper)
@@ -743,21 +759,20 @@ export default {
     }
     this.closeFilter()
     this.closeMenu()
-    this.preventEvent(null, 'beforeDestroy')
+    this.preventEvent(null, 'beforeUnmount')
   },
-  destroyed () {
+  unmounted () {
     GlobalEvent.off(this, 'mousedown')
     GlobalEvent.off(this, 'blur')
     GlobalEvent.off(this, 'mousewheel')
     GlobalEvent.off(this, 'keydown')
     GlobalEvent.off(this, 'resize')
     GlobalEvent.off(this, 'contextmenu')
-    this.preventEvent(null, 'destroyed')
+    this.preventEvent(null, 'unmounted')
   },
-  render (h) {
+  render () {
     const {
-      _e,
-      $scopedSlots,
+      $slots,
       tId,
       tableData,
       tableColumn,
@@ -802,10 +817,11 @@ export default {
       emptyOpts,
       tableHeightByPager
     } = this
+
     const { leftList, rightList } = columnStore
     let emptyContent
-    if ($scopedSlots.empty) {
-      emptyContent = $scopedSlots.empty.call(this, { $table: this }, h)
+    if ($slots.empty) {
+      emptyContent = $slots.empty.call(this, { $table: this }, h)
     } else {
       const compConf = emptyRender ? VXETable.renderer.get(emptyOpts.name) : null
       if (compConf) {
@@ -814,10 +830,11 @@ export default {
         emptyContent = GlobalConfig.i18n('vxe.table.emptyText')
       }
     }
-    const key = this.$props.id || window.location.href
+    const key = this.id || window.location.href
     const ref = `${key}ScrollWrapper`
     const mainRef = `${key}-table`
     return h('div', {
+      ref: mainRef,
       class: ['vxe-table', `tid_${tId}`, vSize ? `size--${vSize}` : '', `border--${tableBorder}`, {
         'vxe-editable': !!editConfig,
         'show--head': showHeader,
@@ -841,10 +858,7 @@ export default {
         'virtual--x': scrollXLoad,
         'virtual--y': scrollYLoad
       }],
-      ref: mainRef,
-      attrs: {
-        'x-cloak': isCloak
-      },
+      'x-cloak': isCloak ? 'x-cloak' : null,
       style: {
         maxHeight: tableHeightByPager || 'calc(100% - 144px)'
       }
@@ -855,24 +869,22 @@ export default {
       h('div', {
         class: 'vxe-table-slots',
         ref: 'hideColumn'
-      }, this.$slots.default),
+      }, this.$slots.default()),
       h('div', {
         class: 'vxe-table--main-wrapper'
       }, [
         /**
          * 主头部
          */
-        showHeader ? h('vxe-table-header', {
+        showHeader ? h(resolveComponent('vxe-table-header'), {
           ref: 'tableHeader',
-          props: {
-            tableData,
-            tableColumn,
-            visibleColumn,
-            tableGroupColumn,
-            size: vSize,
-            isGroup
-          }
-        }) : _e(),
+          tableData,
+          tableColumn,
+          visibleColumn,
+          tableGroupColumn,
+          size: vSize,
+          isGroup
+        }) : null,
         /**
          * 主内容
          */
@@ -881,38 +893,34 @@ export default {
           ref,
           style: { overflow: 'auto', height: 'calc(100% - 40px)', borderRadius: '0 0 5px 5px' }
         }, [
-          h('vxe-table-body', {
+          h(resolveComponent('vxe-table-body'), {
             ref: 'tableBody',
-            props: {
-              tableData,
-              tableColumn,
-              visibleColumn,
-              size: vSize,
-              isGroup
-            }
+            tableData,
+            tableColumn,
+            visibleColumn,
+            size: vSize,
+            isGroup
           })
         ]),
         /**
          * 底部汇总
          */
-        showFooter ? h('vxe-table-footer', {
-          props: {
-            footerData,
-            tableColumn,
-            visibleColumn,
-            size: vSize
-          },
+        showFooter ? h(resolveComponent('vxe-table-footer'), {
+          footerData,
+          tableColumn,
+          visibleColumn,
+          size: vSize,
           ref: 'tableFooter'
         }) : null
       ]),
       /**
        * 左侧固定列
        */
-      leftList && leftList.length && overflowX ? renderFixed(h, this, 'left') : _e(),
+      leftList && leftList.length && overflowX ? renderFixed(h, this, 'left') : null,
       /**
        * 右侧固定列
        */
-      rightList && rightList.length && overflowX ? renderFixed(h, this, 'right') : _e(),
+      rightList && rightList.length && overflowX ? renderFixed(h, this, 'right') : null,
       /**
        * 空数据
        */
@@ -940,7 +948,7 @@ export default {
           'padding-bottom': `${scrollbarHeight}px`
         } : null,
         ref: 'resizeBar'
-      }) : _e(),
+      }) : null,
       /**
        * 加载中
        */
@@ -956,41 +964,33 @@ export default {
       /**
        * 筛选
        */
-      this.hasFilterPanel ? h('vxe-table-filter', {
-        props: {
-          filterStore
-        },
+      this.hasFilterPanel ? h(resolveComponent('vxe-table-filter'), {
+        filterStore,
         ref: 'filterWrapper'
-      }) : _e(),
+      }) : null,
       /**
        * 导入
        */
-      this.importConfig ? h('vxe-import-panel', {
-        props: {
-          defaultOptions: this.importParams,
-          storeData: this.importStore
-        }
-      }) : _e(),
+      this.importConfig ? h(resolveComponent('vxe-import-panel'), {
+        defaultOptions: this.importParams,
+        storeData: this.importStore
+      }) : null,
       /**
        * 导出
        */
-      this.exportConfig ? h('vxe-export-panel', {
-        props: {
-          defaultOptions: this.exportParams,
-          storeData: this.exportStore
-        }
-      }) : _e(),
+      this.exportConfig ? h(resolveComponent('vxe-export-panel'), {
+        defaultOptions: this.exportParams,
+        storeData: this.exportStore
+      }) : null,
       /**
        * 自定义列
        */
-      this.customConfig ? h('vxe-custom-panel', {
-        props: {
-          storeData: this.customStore,
-          collectColumn: this.collectColumn
-        }
-      }) : _e(),
+      this.customConfig ? h(resolveComponent('vxe-custom-panel'), {
+        storeData: this.customStore,
+        collectColumn: this.collectColumn
+      }) : null,
       h('div', {
-        class: `vxe-table${tId}-wrapper ${this.$vnode.data.staticClass || ''}`,
+        class: `vxe-table${tId}-wrapper ${(this.$.vnode.data && this.$.vnode.data.staticClass) || ''}`,
         ref: 'tableWrapper'
       }, [
         /**
@@ -999,38 +999,34 @@ export default {
         checkboxOpts.range ? h('div', {
           class: 'vxe-table--checkbox-range',
           ref: 'checkboxRange'
-        }) : _e(),
+        }) : null,
         /**
          * 快捷菜单
          */
-        isCtxMenu ? h('vxe-table-context-menu', {
-          props: {
-            ctxMenuStore,
-            ctxMenuOpts
-          },
+        isCtxMenu ? h(resolveComponent('vxe-table-context-menu'), {
+          ctxMenuStore,
+          ctxMenuOpts,
           ref: 'ctxWrapper'
-        }) : _e(),
+        }) : null,
         /**
          * 单元格溢出的提示
          */
-        hasTip ? h('vxe-tooltip', {
+        hasTip ? h(resolveComponent('vxe-tooltip'), {
           ref: 'tooltip',
-          props: tooltipOpts,
-          on: tooltipOpts.enterable ? {
-            leave: this.handleTooltipLeaveEvent
-          } : null
-        }) : _e(),
+          tooltipOpts,
+          onLeave: tooltipOpts.enterable ? this.handleTooltipLeaveEvent : null
+        }) : null,
         /**
          * 单元格校验不通过的提示
          * 仅用于一行数据时有效，多行数据使用内部的提示框
          */
-        hasTip && editRules && (validOpts.message === 'default' ? !height : validOpts.message === 'tooltip') ? h('vxe-tooltip', {
+        hasTip && editRules && (validOpts.message === 'default' ? !height : validOpts.message === 'tooltip') ? h(resolveComponent('vxe-tooltip'), {
           class: 'vxe-table--valid-error',
-          props: validOpts.message === 'tooltip' || tableData.length === 1 ? vaildTipOpts : null,
+          vaildTipOpts: validOpts.message === 'tooltip' || tableData.length === 1 ? vaildTipOpts : null,
           ref: 'validTip'
-        }) : _e()
+        }) : null
       ])
     ])
   },
   methods
-}
+})

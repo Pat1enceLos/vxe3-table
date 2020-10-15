@@ -1,10 +1,10 @@
 import VxeTable from './src/table'
 import VXETable from '../v-x-e-table'
 
-VxeTable.install = function (Vue) {
-  VXETable.Vue = Vue
+VxeTable.install = function (app) {
+  VXETable.Vue = app
   VXETable.Table = VxeTable
-  Vue.component(VxeTable.name, VxeTable)
+  app.component(VxeTable.name, VxeTable)
 }
 
 export const Table = VxeTable

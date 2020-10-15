@@ -312,7 +312,7 @@ const Methods = {
       fullColumnIdData[colid] = rest
       fullColumnMap.set(column, rest)
     }
-    fullColumnMap.clear()
+    fullColumnMap && fullColumnMap.clear()
     if (isGroup) {
       XEUtils.eachTree(collectColumn, (column, index, items, path, parent, nodes) => {
         column.level = nodes.length
@@ -635,7 +635,7 @@ const Methods = {
    */
   updateAfterFullData () {
     const { visibleColumn, tableFullData, filterOpts, sortOpts } = this
-    let tableData = tableFullData.slice(0)
+    let tableData = tableFullData ? tableFullData.slice(0) : []
     const column = XEUtils.find(visibleColumn, column => column.order)
     const filterColumns = []
     visibleColumn.forEach(column => {
@@ -1967,7 +1967,7 @@ const Methods = {
     const { checkMethod } = this.checkboxOpts
     if (!checkMethod || checkMethod({ row: params.row })) {
       this.handleSelectRow(params, value)
-      this.emitEvent('checkbox-change', Object.assign({ records: this.getCheckboxRecords(), reserves: this.getCheckboxReserveRecords(), indeterminates: this.getCheckboxIndeterminateRecords(), checked: value }, params), evnt)
+      this.emitEvent('checkboxChange', Object.assign({ records: this.getCheckboxRecords(), reserves: this.getCheckboxReserveRecords(), indeterminates: this.getCheckboxIndeterminateRecords(), checked: value }, params), evnt)
     }
   },
   /**
@@ -2188,7 +2188,7 @@ const Methods = {
    */
   triggerCheckAllEvent (evnt, value) {
     this.setAllCheckboxRow(value)
-    this.emitEvent('checkbox-all', { records: this.getCheckboxRecords(), reserves: this.getCheckboxReserveRecords(), indeterminates: this.getCheckboxIndeterminateRecords(), checked: value }, evnt)
+    this.emitEvent('checkboxAll', { records: this.getCheckboxRecords(), reserves: this.getCheckboxReserveRecords(), indeterminates: this.getCheckboxIndeterminateRecords(), checked: value }, evnt)
   },
   /**
    * 多选，切换所有行的选中状态
@@ -2247,14 +2247,14 @@ const Methods = {
     const isChange = this.selectRow !== params.row
     this.setRadioRow(params.row)
     if (isChange) {
-      this.emitEvent('radio-change', params, evnt)
+      this.emitEvent('radioChange', params, evnt)
     }
   },
   triggerCurrentRowEvent (evnt, params) {
     const isChange = this.currentRow !== params.row
     this.setCurrentRow(params.row)
     if (isChange) {
-      this.emitEvent('current-change', params, evnt)
+      this.emitEvent('currentChange', params, evnt)
     }
   },
   /**
@@ -2340,14 +2340,14 @@ const Methods = {
     if (sortOpts.trigger === 'cell' && !(triggerResizable || triggerSort || triggerFilter)) {
       this.triggerSortEvent(evnt, column, getNextSortOrder(this, column))
     }
-    this.emitEvent('header-cell-click', Object.assign({ triggerResizable, triggerSort, triggerFilter, cell }, params), evnt)
+    this.emitEvent('headerCellClick', Object.assign({ triggerResizable, triggerSort, triggerFilter, cell }, params), evnt)
     if (this.highlightCurrentColumn) {
       return this.setCurrentColumn(column)
     }
     return this.$nextTick()
   },
   triggerHeaderCellDBLClickEvent (evnt, params) {
-    this.emitEvent('header-cell-dblclick', Object.assign({ cell: evnt.currentTarget }, params), evnt)
+    this.emitEvent('headerCellDblclick', Object.assign({ cell: evnt.currentTarget }, params), evnt)
   },
   getCurrentColumn () {
     return this.highlightCurrentColumn ? this.currentColumn : null
@@ -2450,7 +2450,7 @@ const Methods = {
         }
       }
     }
-    this.emitEvent('cell-click', params, evnt)
+    this.emitEvent('cellClick', params, evnt)
   },
   /**
    * 列双击点击事件
@@ -2478,7 +2478,7 @@ const Methods = {
         }
       }
     }
-    this.emitEvent('cell-dblclick', params, evnt)
+    this.emitEvent('cellDblclick', params, evnt)
   },
   handleDefaultSort () {
     const defaultSort = this.sortOpts.defaultSort
@@ -2505,7 +2505,7 @@ const Methods = {
       } else {
         this.sort(property, order)
       }
-      this.emitEvent('sort-change', params, evnt)
+      this.emitEvent('sortChange', params, evnt)
     }
   },
   sort (field, order) {
@@ -2611,7 +2611,7 @@ const Methods = {
       const columnIndex = this.getColumnIndex(column)
       const $columnIndex = this.$getColumnIndex(column)
       this.setRowExpand(row, expanded)
-      this.emitEvent('toggle-row-expand', { expanded, column, columnIndex, $columnIndex, row, rowIndex: this.getRowIndex(row), $rowIndex: this.$getRowIndex(row) }, evnt)
+      this.emitEvent('toggleRowExpand', { expanded, column, columnIndex, $columnIndex, row, rowIndex: this.getRowIndex(row), $rowIndex: this.$getRowIndex(row) }, evnt)
     }
   },
   /**
@@ -2776,7 +2776,7 @@ const Methods = {
       const columnIndex = this.getColumnIndex(column)
       const $columnIndex = this.$getColumnIndex(column)
       this.setTreeExpand(row, expanded)
-      this.emitEvent('toggle-tree-expand', { expanded, column, columnIndex, $columnIndex, row }, evnt)
+      this.emitEvent('toggleTreeExpand', { expanded, column, columnIndex, $columnIndex, row }, evnt)
     }
   },
   /**
@@ -3364,7 +3364,7 @@ const Methods = {
     this.$nextTick(() => {
       const columns = this.getTableColumn().fullColumn
       if (columns.every(i => i.resizable === false)) return
-      const key = this.$props.id || window.location.href
+      const key = this.id || window.location.href
       const ref = `${key}ScrollWrapper`
       const myObserver = new ResizeObserver((entries) => {
         entries.forEach(entry => {
@@ -3425,7 +3425,7 @@ const Methods = {
     return arr.slice(0, length - 1)
   },
   hideDropdown () {
-    const key = this.$props.id || window.location.href
+    const key = this.id || window.location.href
     const ref = `${key}ScrollWrapper`
     const scrollElm = this.$refs[ref].querySelector('.vxe-table--body-wrapper')
     if (scrollElm) {
@@ -3440,30 +3440,30 @@ const Methods = {
       resizeObserver.observe(header)
     }
 
-    const mainObserver = new ResizeObserver(this.calcTableHeight)
+    const pagerElm = this.$refs[mainRef].parentNode.querySelector('.vxe-pager--wrapper')
+    const mainObserver = new ResizeObserver(() => {
+      if (pagerElm) {
+        const height = parseFloat(getComputedStyle(pagerElm).height)
+        if (height) {
+          this.tableHeightByPager = `calc(100% - ${height + 100}px)`
+        }
+      }
+    })
     const mainTable = this.$refs[mainRef]
     if (mainTable) {
       mainObserver.observe(mainTable)
     }
 
-    this.$once('hook:beforeDestroy', () => {
-      if (scrollElm) {
-        scrollElm.removeEventListener('scroll', this.hideDropdownOperation)
-      }
-      resizeObserver.disconnect()
-      mainObserver.disconnect()
-    })
+  },
+  handleBeforeDestroy() {
+    if (scrollElm) {
+      scrollElm.removeEventListener('scroll', this.hideDropdownOperation)
+    }
+    resizeObserver.disconnect()
+    mainObserver.disconnect()
   },
   calcTableHeight () {
-    const key = this.$props.id || window.location.href
-    const mainRef = `${key}-table`
-    const pagerElm = this.$refs[mainRef].parentNode.querySelector('.vxe-pager--wrapper')
-    if (pagerElm) {
-      const height = parseFloat(getComputedStyle(pagerElm).height)
-      if (height) {
-        this.tableHeightByPager = `calc(100% - ${height + 100}px)`
-      }
-    }
+    
   },
   hideDropdownOperation () {
     const triggerElm = document.activeElement

@@ -1,7 +1,7 @@
 import VxeTableColumn from './src/column'
 
-VxeTableColumn.install = function (Vue) {
-  Vue.component(VxeTableColumn.name, VxeTableColumn)
+VxeTableColumn.install = function (app) {
+  app.component(VxeTableColumn.name, VxeTableColumn)
 }
 
 export const Column = VxeTableColumn

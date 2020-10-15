@@ -1,4 +1,5 @@
 import XEUtils from 'xe-utils/methods/xe-utils'
+import { h } from 'vue';
 import GlobalConfig from '../../conf'
 import VXETable from '../../v-x-e-table'
 import { UtilTools } from '../../tools'
@@ -139,7 +140,7 @@ export const Cell = {
       }
     }
     if (!trigger || trigger === 'default') {
-      on.click = evnt => $table.triggerTreeExpandEvent(evnt, params)
+      on.onClick = evnt => $table.triggerTreeExpandEvent(evnt, params)
     }
     return [
       h('div', {
@@ -153,7 +154,7 @@ export const Cell = {
         (rowChilds && rowChilds.length) || hasLazyChilds ? [
           h('div', {
             class: 'vxe-tree--btn-wrapper',
-            on
+            ...on
           }, [
             h('i', {
               class: ['vxe-tree--node-btn', isLazyLoaded ? (iconLoaded || GlobalConfig.icon.TABLE_TREE_LOADED) : (isAceived ? (iconOpen || GlobalConfig.icon.TABLE_TREE_OPEN) : (iconClose || GlobalConfig.icon.TABLE_TREE_CLOSE))]
@@ -213,7 +214,7 @@ export const Cell = {
     let on
     if (!isHidden) {
       on = {
-        click (evnt) {
+        onClick (evnt) {
           if (!isDisabled) {
             $table.triggerRadioRowEvent(evnt, params)
           }
@@ -229,7 +230,7 @@ export const Cell = {
           'is--checked': isChecked,
           'is--disabled': isDisabled
         }],
-        on
+        ...on
       }, [
         h('span', {
           class: 'vxe-radio--icon vxe-radio--checked-icon'
@@ -269,7 +270,7 @@ export const Cell = {
     if (!isHidden) {
       isChecked = isAllCheckboxDisabled ? false : $table.isAllSelected
       on = {
-        click (evnt) {
+        onClick (evnt) {
           if (!isAllCheckboxDisabled) {
             $table.triggerCheckAllEvent(evnt, !isChecked)
           }
@@ -283,10 +284,8 @@ export const Cell = {
           'is--disabled': isAllCheckboxDisabled,
           'is--indeterminate': isIndeterminate
         }],
-        attrs: {
-          title: GlobalConfig.i18n('vxe.table.allTitle')
-        },
-        on
+        title: GlobalConfig.i18n('vxe.table.allTitle'),
+        ...on
       }, [
         h('span', {
           class: 'vxe-checkbox--icon vxe-checkbox--checked-icon'
@@ -316,7 +315,7 @@ export const Cell = {
     if (!isHidden) {
       isChecked = $table.selection.indexOf(row) > -1
       on = {
-        click (evnt) {
+        onClick (evnt) {
           if (!isDisabled) {
             $table.triggerCheckRowEvent(evnt, params, !isChecked)
           }
@@ -336,7 +335,7 @@ export const Cell = {
           'is--disabled': isDisabled,
           'is--indeterminate': indeterminate
         }],
-        on
+        ...on
       }, [
         h('span', {
           class: 'vxe-checkbox--icon vxe-checkbox--checked-icon'
@@ -435,11 +434,7 @@ export const Cell = {
         class: ['vxe-table--expanded', {
           'is--active': isAceived
         }],
-        on: {
-          click (evnt) {
-            $table.triggerRowExpandEvent(evnt, params)
-          }
-        }
+        onClick: (evnt) => $table.triggerRowExpandEvent(evnt, params)
       }, [
         h('i', {
           class: ['vxe-table--expand-btn', isLazyLoaded ? (iconLoaded || GlobalConfig.icon.TABLE_EXPAND_LOADED) : (isAceived ? (iconOpen || GlobalConfig.icon.TABLE_EXPAND_OPEN) : (iconClose || GlobalConfig.icon.TABLE_EXPAND_CLOSE))]
@@ -477,9 +472,7 @@ export const Cell = {
     return [
       h('span', {
         class: 'vxe-cell--html',
-        domProps: {
-          innerHTML: UtilTools.formatText(UtilTools.getCellLabel(row, column, params), 1)
-        }
+        innerHTML: UtilTools.formatText(UtilTools.getCellLabel(row, column, params), 1)
       })
     ]
   },
@@ -513,56 +506,36 @@ export const Cell = {
           class: ['vxe-sort--asc-btn', iconAsc || GlobalConfig.icon.TABLE_SORT_ASC, {
             'sort--active': column.order === 'asc'
           }],
-          attrs: {
-            title: GlobalConfig.i18n('vxe.table.sortAsc')
-          },
-          on: {
-            click (evnt) {
-              $table.triggerSortEvent(evnt, column, 'asc')
-            }
-          }
+          title: GlobalConfig.i18n('vxe.table.sortAsc'),
+          onClick: (evnt) => $table.triggerSortEvent(evnt, column, 'asc')
         }, [
           h('svg', {
-            attrs: {
-              viewBox: '0 0 16 8',
-              width: '16px',
-              height: '8px'
-            },
-            domProps: {
-              innerHTML: `
-                <g id="画板" stroke="none" stroke-width="1" fill-rule="evenodd">
-                    <path d="M7.55803708,2.49069051 L4.63890187,6.19028212 C4.4678494,6.40706696 4.50492282,6.72147121 4.72170766,6.89252367 C4.80993448,6.96213839 4.91904146,7 5.03142554,7 L10.9507721,7 C11.2269145,7 11.4507721,6.77614237 11.4507721,6.5 C11.4507721,6.38532418 11.4113531,6.27413338 11.3391221,6.18506466 L8.33891077,2.48547306 C8.16497679,2.27099327 7.85010521,2.2381244 7.63562542,2.41205838 C7.60693772,2.43532288 7.58091617,2.4616945 7.55803708,2.49069051 Z" id="up/fill"></path>
-                </g>
-              `
-            }
+            viewBox: '0 0 16 8',
+            width: '16px',
+            height: '8px',
+            innerHTML: `
+              <g id="画板" stroke="none" stroke-width="1" fill-rule="evenodd">
+                  <path d="M7.55803708,2.49069051 L4.63890187,6.19028212 C4.4678494,6.40706696 4.50492282,6.72147121 4.72170766,6.89252367 C4.80993448,6.96213839 4.91904146,7 5.03142554,7 L10.9507721,7 C11.2269145,7 11.4507721,6.77614237 11.4507721,6.5 C11.4507721,6.38532418 11.4113531,6.27413338 11.3391221,6.18506466 L8.33891077,2.48547306 C8.16497679,2.27099327 7.85010521,2.2381244 7.63562542,2.41205838 C7.60693772,2.43532288 7.58091617,2.4616945 7.55803708,2.49069051 Z" id="up/fill"></path>
+              </g>
+            `
           })
         ]),
         h('i', {
           class: ['vxe-sort--desc-btn', iconDesc || GlobalConfig.icon.TABLE_SORT_DESC, {
             'sort--active': column.order === 'desc'
           }],
-          attrs: {
-            title: GlobalConfig.i18n('vxe.table.sortDesc')
-          },
-          on: {
-            click (evnt) {
-              $table.triggerSortEvent(evnt, column, 'desc')
-            }
-          }
+          title: GlobalConfig.i18n('vxe.table.sortDesc'),
+          onClick: (evnt) => $table.triggerSortEvent(evnt, column, 'desc')
         }, [
           h('svg', {
-            attrs: {
-              viewBox: '0 0 16 8',
-              width: '16px',
-              height: '8px'
-            },
-            domProps: {
-              innerHTML: `
-                <g id="画板" stroke="none" stroke-width="1" fill-rule="evenodd">
-                  <path d="M7.55803708,1.49069051 L4.63890187,5.19028212 C4.4678494,5.40706696 4.50492282,5.72147121 4.72170766,5.89252367 C4.80993448,5.96213839 4.91904146,6 5.03142554,6 L10.9507721,6 C11.2269145,6 11.4507721,5.77614237 11.4507721,5.5 C11.4507721,5.38532418 11.4113531,5.27413338 11.3391221,5.18506466 L8.33891077,1.48547306 C8.16497679,1.27099327 7.85010521,1.2381244 7.63562542,1.41205838 C7.60693772,1.43532288 7.58091617,1.4616945 7.55803708,1.49069051 Z" id="down/fill" transform="translate(8.000000, 3.500000) scale(1, -1) translate(-8.000000, -3.500000) "></path>
-                </g>
-              `
-            }
+            viewBox: '0 0 16 8',
+            width: '16px',
+            height: '8px',
+            innerHTML: `
+              <g id="画板" stroke="none" stroke-width="1" fill-rule="evenodd">
+                <path d="M7.55803708,1.49069051 L4.63890187,5.19028212 C4.4678494,5.40706696 4.50492282,5.72147121 4.72170766,5.89252367 C4.80993448,5.96213839 4.91904146,6 5.03142554,6 L10.9507721,6 C11.2269145,6 11.4507721,5.77614237 11.4507721,5.5 C11.4507721,5.38532418 11.4113531,5.27413338 11.3391221,5.18506466 L8.33891077,1.48547306 C8.16497679,1.27099327 7.85010521,1.2381244 7.63562542,1.41205838 C7.60693772,1.43532288 7.58091617,1.4616945 7.55803708,1.49069051 Z" id="down/fill" transform="translate(8.000000, 3.500000) scale(1, -1) translate(-8.000000, -3.500000) "></path>
+              </g>
+            `
           })
         ])
       ])
@@ -587,26 +560,16 @@ export const Cell = {
       }, [
         h('i', {
           class: ['vxe-filter--btn', hasFilter ? (iconMatch || GlobalConfig.icon.TABLE_FILTER_MATCH) : (iconNone || GlobalConfig.icon.TABLE_FILTER_NONE)],
-          attrs: {
-            title: GlobalConfig.i18n('vxe.table.filter')
-          },
-          on: {
-            click (evnt) {
-              $table.triggerFilterEvent(evnt, params.column, params)
-            }
-          }
+          title: GlobalConfig.i18n('vxe.table.filter'),
+          onClick: (evnt) => $table.triggerFilterEvent(evnt, params.column, params)
         }, [
           h('svg', {
-            attrs: {
-              viewBox: '0 0 24 24',
-              width: '100%',
-              height: '100%'
-            },
-            domProps: {
-              innerHTML: `<g id="icon-/-filter" stroke="none" stroke-width="1" fill-rule="evenodd">
-                <path d="M9.14662963,18.2982456 C9.14662963,18.6864035 9.39513883,19 9.70315024,19 L14.2953204,19 C14.6033318,19 14.851841,18.6864035 14.851841,18.2982456 L14.851841,14.4646233 L9.14662963,14.4646233 L9.14662963,18.2982456 Z M17.5210491,5 L6.47763999,5 C6.11012638,5 5.88061787,5.50377358 6.06512471,5.90566038 L9.12413103,13 L14.8681932,13 L17.9365645,5.90566038 C18.1180712,5.50377358 17.8885627,5 17.5210491,5 Z"></path>
-              </g>`
-            }
+            viewBox: '0 0 24 24',
+            width: '100%',
+            height: '100%',
+            innerHTML: `<g id="icon-/-filter" stroke="none" stroke-width="1" fill-rule="evenodd">
+              <path d="M9.14662963,18.2982456 C9.14662963,18.6864035 9.39513883,19 9.70315024,19 L14.2953204,19 C14.6033318,19 14.851841,18.6864035 14.851841,18.2982456 L14.851841,14.4646233 L9.14662963,14.4646233 L9.14662963,18.2982456 Z M17.5210491,5 L6.47763999,5 C6.11012638,5 5.88061787,5.50377358 6.06512471,5.90566038 L9.12413103,13 L14.8681932,13 L17.9365645,5.90566038 C18.1180712,5.50377358 17.8885627,5 17.5210491,5 Z"></path>
+            </g>`
           })
         ])
       ])

@@ -1,4 +1,5 @@
 import XEUtils from 'xe-utils/methods/xe-utils'
+import { h } from 'vue';
 import { UtilTools, DomTools } from '../../tools'
 import { convertToRows } from './util'
 
@@ -14,7 +15,7 @@ export default {
     fixedColumn: Array,
     size: String,
     fixedType: String,
-    isGroup: Boolean
+    isGroup: Boolean,
   },
   data () {
     return {
@@ -40,9 +41,9 @@ export default {
     elemStore[`${prefix}xSpace`] = $refs.xSpace
     elemStore[`${prefix}repair`] = $refs.repair
   },
-  render (h) {
-    const { _e, $parent: $xetable, fixedType, headerColumn, fixedColumn } = this
-    const { $listeners: tableListeners, tId, resizable, border, columnKey, headerRowClassName, headerCellClassName, headerRowStyle, headerCellStyle, showHeaderOverflow: allColumnHeaderOverflow, headerAlign: allHeaderAlign, align: allAlign, highlightCurrentColumn, currentColumn, scrollXLoad, overflowX, scrollbarWidth, tooltipOpts, sortOpts } = $xetable
+  render () {
+    const { $parent: $xetable, fixedType, headerColumn, fixedColumn } = this
+    const { $attrs: tableListeners, tId, resizable, border, columnKey, headerRowClassName, headerCellClassName, headerRowStyle, headerCellStyle, showHeaderOverflow: allColumnHeaderOverflow, headerAlign: allHeaderAlign, align: allAlign, highlightCurrentColumn, currentColumn, scrollXLoad, overflowX, scrollbarWidth, tooltipOpts, sortOpts } = $xetable
     let { tableColumn } = this
     // 横向滚动渲染
     if (scrollXLoad) {
@@ -52,22 +53,18 @@ export default {
     }
     return h('div', {
       class: ['vxe-table--header-wrapper', fixedType ? `fixed-${fixedType}--wrapper` : 'body--wrapper'],
-      attrs: {
-        'data-tid': tId
-      }
+      'data-tid': tId
     }, [
-      fixedType ? _e() : h('div', {
+      fixedType ? null : h('div', {
         class: 'vxe-body--x-space',
         ref: 'xSpace'
       }),
       h('table', {
         class: 'vxe-table--header',
-        attrs: {
-          'data-tid': tId,
-          cellspacing: 0,
-          cellpadding: 0,
-          border: 0
-        },
+        'data-tid': tId,
+        cellspacing: 0,
+        cellpadding: 0,
+        border: 0,
         ref: 'table'
       }, [
         /**
@@ -77,16 +74,12 @@ export default {
           ref: 'colgroup'
         }, tableColumn.map((column, $columnIndex) => {
           return h('col', {
-            attrs: {
-              name: column.id
-            },
+            name: column.id,
             key: $columnIndex
           })
         }).concat(scrollbarWidth ? [
           h('col', {
-            attrs: {
-              name: 'col_gutter'
-            }
+            name: 'col_gutter'
           })
         ] : [])),
         /**
@@ -119,7 +112,7 @@ export default {
               showEllipsis = hasEllipsis = true
             }
             if (showTitle || showTooltip || enabled) {
-              thOns.mouseenter = evnt => {
+              thOns.onMouseenter = evnt => {
                 if ($xetable._isResize) {
                   return
                 }
@@ -131,7 +124,7 @@ export default {
               }
             }
             if (showTooltip || enabled) {
-              thOns.mouseleave = evnt => {
+              thOns.onMouseleave = evnt => {
                 if ($xetable._isResize) {
                   return
                 }
@@ -140,11 +133,11 @@ export default {
                 }
               }
             }
-            if (highlightCurrentColumn || tableListeners['header-cell-click'] || sortOpts.trigger === 'cell') {
-              thOns.click = evnt => $xetable.triggerHeaderCellClickEvent(evnt, params)
+            if (highlightCurrentColumn || tableListeners['headerCellClick'] || sortOpts.trigger === 'cell') {
+              thOns.onClick = evnt => $xetable.triggerHeaderCellClickEvent(evnt, params)
             }
-            if (tableListeners['header-cell-dblclick']) {
-              thOns.dblclick = evnt => $xetable.triggerHeaderCellDBLClickEvent(evnt, params)
+            if (tableListeners['headerCellDblclick']) {
+              thOns.onDblclick = evnt => $xetable.triggerHeaderCellDBLClickEvent(evnt, params)
             }
             return h('th', {
               class: ['vxe-header--column', column.id, {
@@ -160,13 +153,11 @@ export default {
                 'filter--active': hasFilter,
                 'col--current': currentColumn === column
               }, UtilTools.getClass(headerClassName, params), UtilTools.getClass(headerCellClassName, params)],
-              attrs: {
-                'data-colid': column.id,
-                colspan: column.colSpan > 1 ? column.colSpan : null,
-                rowspan: column.rowSpan > 1 ? column.rowSpan : null
-              },
+              'data-colid': column.id,
+              colspan: column.colSpan > 1 ? column.colSpan : null,
+              rowspan: column.rowSpan > 1 ? column.rowSpan : null,
               style: headerCellStyle ? (XEUtils.isFunction(headerCellStyle) ? headerCellStyle(params) : headerCellStyle) : null,
-              on: thOns,
+              ...thOns,
               key: columnKey || isColGroup ? column.id : $columnIndex
             }, [
               h('div', {
@@ -183,9 +174,7 @@ export default {
                 class: ['vxe-resizable', {
                   'is--line': !border || border === 'none'
                 }],
-                on: {
-                  mousedown: evnt => this.resizeMousedown(evnt, params)
-                }
+                onMousedown: evnt => this.resizeMousedown(evnt, params)
               }) : null
             ])
           }).concat(scrollbarWidth ? [
@@ -274,8 +263,8 @@ export default {
         column.resizeWidth = column.renderWidth + (isRightFixed ? dragPosLeft - dragLeft : dragLeft - dragPosLeft)
 
         // 特殊处理空白行的宽度
-        if (this.$props.resizable !== false) {
-          const key = this.$parent.$props.id || window.location.href
+        if (this.resizable !== false) {
+          const key = this.$parent.id || window.location.href
           const tmp = localStorage.getItem('columnWidth')
           const storedData = tmp ? JSON.parse(tmp) : {}
           if (storedData && storedData[key]) {
@@ -299,7 +288,7 @@ export default {
         $xetable.recalculate(true)
         DomTools.removeClass($xetable.$el, 'c--resize')
         $xetable.saveCustomResizable()
-        $xetable.emitEvent('resizable-change', params, evnt)
+        $xetable.emitEvent('resizableChange', params, evnt)
       }
       updateEvent(evnt)
     }

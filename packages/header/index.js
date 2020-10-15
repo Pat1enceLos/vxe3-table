@@ -1,7 +1,7 @@
 import VxeTableHeader from './src/header'
 
-VxeTableHeader.install = function (Vue) {
-  Vue.component(VxeTableHeader.name, VxeTableHeader)
+VxeTableHeader.install = function (app) {
+  app.component(VxeTableHeader.name, VxeTableHeader)
 }
 
 export const Header = VxeTableHeader

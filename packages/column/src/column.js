@@ -1,3 +1,4 @@
+import { defineComponent, h } from 'vue';
 import Cell from '../../cell'
 import { UtilTools } from '../../tools'
 
@@ -77,7 +78,7 @@ Object.keys(props).forEach(name => {
   }
 })
 
-export default {
+export default defineComponent({
   name: 'VxeTableColumn',
   props,
   provide () {
@@ -99,15 +100,15 @@ export default {
   },
   mounted () {
     UtilTools.assemColumn(this)
-    if (this.type === 'expand' && !this.$scopedSlots.content && this.$scopedSlots.default) {
+    if (this.type === 'expand' && !this.$slots.content && this.$slots.default) {
       UtilTools.warn('vxe.error.expandContent')
     }
   },
-  destroyed () {
+  unmounted () {
     UtilTools.destroyColumn(this)
   },
-  render (h) {
-    return h('div', this.$slots.default)
+  render() {
+    return h('div', this.$slots.default ? this.$slots.default () : null)
   },
   methods: Cell
-}
+})
