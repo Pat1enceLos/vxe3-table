@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { PluginInstallFunction } from 'vue'
 
 import { ModalController } from './modal'
 
@@ -14,63 +15,66 @@ export interface VXETableOptions {
 }
 
 export interface VXETableStatic {
-  /**
-   * 版本号
-   */
-  v: string;
-  /**
-   * 导出/导出文件类型设置
-   * 0只支持导出 1 支持导入导出
-   */
-  types: { [type: string]: any };
-  /**
-   * 获取导出的所有文件类型
-   */
-  exportTypes: string[];
-  /**
-   * 获取导入的所有文件类型
-   */
-  importTypes: string[];
-  /**
-   * 读取内置国际化
-   */
-  t(key: string): any;
-  /**
-   * 设置全局参数/获取所有参数
-   * @param options 参数
-   */
-  setup(options?: VXETableOptions): any;
-  /**
-   * 全局事件拦截器
-   */
-  interceptor: interceptor;
-  /**
-   * 全局渲染器
-   */
-  renderer: renderer;
-  /**
-   * 全局指令
-   */
-  commands: commands;
-  /**
-   * 全局格式化
-   */
-  formats: formats;
-  /**
-   * 全局快捷菜单
-   */
-  menus: menus;
-  /**
-   * 全局的模态窗口
-   */
-  modal: typeof ModalController;
-  /**
-   * 安装插件
-   * @param plugin 插件
-   * @param options 参数
-   */
-  use(plugin: PluginObject, ...options: any[]): VXETableStatic;
-  install(vue: typeof Vue, options?: VXETableOptions): void;
+  install: PluginInstallFunction;
+
+  
+  // /**
+  //  * 版本号
+  //  */
+  // v: string;
+  // /**
+  //  * 导出/导出文件类型设置
+  //  * 0只支持导出 1 支持导入导出
+  //  */
+  // types: { [type: string]: any };
+  // /**
+  //  * 获取导出的所有文件类型
+  //  */
+  // exportTypes: string[];
+  // /**
+  //  * 获取导入的所有文件类型
+  //  */
+  // importTypes: string[];
+  // /**
+  //  * 读取内置国际化
+  //  */
+  // t(key: string): any;
+  // /**
+  //  * 设置全局参数/获取所有参数
+  //  * @param options 参数
+  //  */
+  // setup(options?: VXETableOptions): any;
+  // /**
+  //  * 全局事件拦截器
+  //  */
+  // interceptor: interceptor;
+  // /**
+  //  * 全局渲染器
+  //  */
+  // renderer: renderer;
+  // /**
+  //  * 全局指令
+  //  */
+  // commands: commands;
+  // /**
+  //  * 全局格式化
+  //  */
+  // formats: formats;
+  // /**
+  //  * 全局快捷菜单
+  //  */
+  // menus: menus;
+  // /**
+  //  * 全局的模态窗口
+  //  */
+  // modal: typeof ModalController;
+  // /**
+  //  * 安装插件
+  //  * @param plugin 插件
+  //  * @param options 参数
+  //  */
+  // use(plugin: PluginObject, ...options: any[]): VXETableStatic;
+  // install(vue: typeof Vue, options?: VXETableOptions): void;
 }
 
 /**
