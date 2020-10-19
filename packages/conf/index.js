@@ -16,7 +16,7 @@ const GlobalConfig = {
     // showHeaderOverflow: null,
     // showFooterOverflow: null,
     // resizeInterval: 500,
-    size: 'medium',
+    size: 'default',
     // zIndex: null,
     // resizable: false,
     // autoResize: false,
